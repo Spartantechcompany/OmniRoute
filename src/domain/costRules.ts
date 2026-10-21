@@ -31,6 +31,7 @@ import {
 } from "@/lib/spend/batchWriter";
 import { recordLedgerFromCost } from "@/lib/usage/costLedgerRecorder";
 import { isFeatureFlagEnabled } from "@/shared/utils/featureFlags";
+import { recordUnpricedKeyQuotaUsage } from "@/domain/keyQuota";
 import { isFlatRateProvider } from "@/lib/usage/flatRateProviders";
 
 export type BudgetResetInterval = "daily" | "weekly" | "monthly";
@@ -559,6 +560,8 @@ export function recordUnpricedBudgetUsage(
   apiKeyId: string,
   details: Pick<RecordCostDetails, "provider" | "model"> = {}
 ): void {
+  // The monthly USD key quota sums the same priced ledger, so it fails closed too.
+  recordUnpricedKeyQuotaUsage(apiKeyId, details);
   const budget = getBudget(apiKeyId);
   if (!budget || getActiveBudgetLimit(budget) <= 0) return;
   const window = getBudgetWindow(budget.resetInterval, budget.resetTime);
