@@ -93,6 +93,7 @@ export const modelCompatPerProtocolSchema = z
   .object({
     normalizeToolCallId: z.boolean().optional(),
     preserveOpenAIDeveloperRole: z.boolean().optional(),
+    preserveVideoUrl: z.boolean().optional(),
     upstreamHeaders: upstreamHeadersRecordSchema.optional(),
   })
   .strict();

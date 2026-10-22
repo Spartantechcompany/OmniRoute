@@ -40,6 +40,7 @@ export interface PassthroughModelRowProps {
   showDeveloperToggle?: boolean;
   effectiveModelNormalize: (modelId: string, protocol?: string) => boolean;
   effectiveModelPreserveDeveloper: (modelId: string, protocol?: string) => boolean;
+  effectiveModelPreserveVideoUrl?: (modelId: string) => boolean;
   saveModelCompatFlags: (modelId: string, patch: ModelCompatSavePatch) => void;
   getUpstreamHeadersRecord: (protocol: string) => Record<string, string>;
   compatDisabled?: boolean;
@@ -82,6 +83,7 @@ export default function PassthroughModelRow({
   showDeveloperToggle = true,
   effectiveModelNormalize,
   effectiveModelPreserveDeveloper,
+  effectiveModelPreserveVideoUrl,
   getUpstreamHeadersRecord,
   saveModelCompatFlags,
   provider,
@@ -404,6 +406,16 @@ export default function PassthroughModelRow({
               saveModelCompatFlags(modelId, { compatByProtocol: { [protocol]: payload } })
             }
             showDeveloperToggle={showDeveloperToggle}
+            effectiveModelPreserveVideoUrl={
+              effectiveModelPreserveVideoUrl
+                ? () => effectiveModelPreserveVideoUrl(modelId)
+                : undefined
+            }
+            onPreserveVideoUrlChange={
+              effectiveModelPreserveVideoUrl
+                ? (value) => saveModelCompatFlags(modelId, { preserveVideoUrl: value })
+                : undefined
+            }
             compact
             disabled={compatDisabled}
           />

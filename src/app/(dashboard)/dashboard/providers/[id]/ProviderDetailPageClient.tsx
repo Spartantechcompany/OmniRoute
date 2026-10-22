@@ -507,6 +507,7 @@ export default function ProviderDetailPageClient() {
   const { customMap } = compat;
   const effectiveModelNormalize = compat.effectiveModelNormalize;
   const effectiveModelPreserveDeveloper = compat.effectiveModelPreserveDeveloper;
+  const effectiveModelPreserveVideoUrl = compat.effectiveModelPreserveVideoUrl;
   const effectiveModelHidden = compat.isModelHidden;
   const getUpstreamHeadersRecordForModel = compat.getUpstreamHeadersRecord;
 
@@ -850,6 +851,7 @@ export default function ProviderDetailPageClient() {
             handleTestAll={handleTestAll}
             effectiveModelNormalize={effectiveModelNormalize}
             effectiveModelPreserveDeveloper={effectiveModelPreserveDeveloper}
+            effectiveModelPreserveVideoUrl={effectiveModelPreserveVideoUrl}
             effectiveModelHidden={effectiveModelHidden}
             getUpstreamHeadersRecordForModel={getUpstreamHeadersRecordForModel}
             t={t}

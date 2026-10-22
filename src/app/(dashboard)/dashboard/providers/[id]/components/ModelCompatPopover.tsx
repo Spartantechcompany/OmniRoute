@@ -130,6 +130,9 @@ export interface ModelCompatPopoverProps {
     }
   ) => void;
   showDeveloperToggle?: boolean;
+  /** Model-level video_url passthrough; the toggle renders only when both props are provided. */
+  effectiveModelPreserveVideoUrl?: () => boolean;
+  onPreserveVideoUrlChange?: (value: boolean) => void;
   compact?: boolean;
   disabled?: boolean;
 }
@@ -147,6 +150,8 @@ export default function ModelCompatPopover({
   getUpstreamHeadersRecord,
   onCompatPatch,
   showDeveloperToggle = true,
+  effectiveModelPreserveVideoUrl,
+  onPreserveVideoUrlChange,
   compact = false,
   disabled,
 }: ModelCompatPopoverProps) {
@@ -592,6 +597,16 @@ export default function ModelCompatPopover({
                     onChange={(checked) =>
                       onCompatPatch(protocol, { preserveOpenAIDeveloperRole: !checked })
                     }
+                    disabled={disabled}
+                  />
+                )}
+                {effectiveModelPreserveVideoUrl && onPreserveVideoUrlChange && (
+                  <Toggle
+                    size="sm"
+                    label={t("compatPreserveVideoUrl")}
+                    title={t("preserveVideoUrlLabel")}
+                    checked={effectiveModelPreserveVideoUrl()}
+                    onChange={(checked) => onPreserveVideoUrlChange(checked)}
                     disabled={disabled}
                   />
                 )}

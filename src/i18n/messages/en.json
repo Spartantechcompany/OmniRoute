@@ -5780,6 +5780,8 @@
     "compatToolIdShort": "Tool ID 9",
     "compatDeveloperShort": "Developer role",
     "compatDoNotPreserveDeveloper": "Do not preserve developer role",
+    "compatPreserveVideoUrl": "Pass video_url to the model",
+    "preserveVideoUrlLabel": "Keep video_url content parts in the request (video-capable models such as Qwen-VL). Without this, only Moonshot and Kimi receive them.",
     "compatBadgeNoPreserve": "No preserve",
     "compatProtocolLabel": "Client request protocol",
     "compatProtocolHint": "These options apply when OmniRoute detects this request shape (OpenAI Chat, Responses API, or Anthropic Messages).",

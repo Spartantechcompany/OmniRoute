@@ -41,6 +41,7 @@ type NotifyStore = ReturnType<typeof useNotificationStore>;
 export interface ModelCompatSavePatch {
   normalizeToolCallId?: boolean;
   preserveOpenAIDeveloperRole?: boolean;
+  preserveVideoUrl?: boolean | null;
   upstreamHeaders?: Record<string, string>;
   compatByProtocol?: CompatByProtocolMap;
   isHidden?: boolean;
@@ -141,6 +142,7 @@ export function useModelVisibilityHandlers({
         patch.compatByProtocol &&
         patch.normalizeToolCallId === undefined &&
         patch.preserveOpenAIDeveloperRole === undefined &&
+        patch.preserveVideoUrl === undefined &&
         !("upstreamHeaders" in patch);
 
       if (c) {
@@ -173,6 +175,7 @@ export function useModelVisibilityHandlers({
                   : true,
           };
           if (patch.compatByProtocol) body.compatByProtocol = patch.compatByProtocol;
+          if (patch.preserveVideoUrl !== undefined) body.preserveVideoUrl = patch.preserveVideoUrl;
         }
       } else {
         body = { provider: providerId, modelId, ...patch };

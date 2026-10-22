@@ -118,6 +118,7 @@ export interface ProviderModelsSectionProps {
   // Compat state (from useModelCompatState)
   effectiveModelNormalize: (modelId: string, protocol?: string) => boolean;
   effectiveModelPreserveDeveloper: (modelId: string, protocol?: string) => boolean;
+  effectiveModelPreserveVideoUrl?: (modelId: string) => boolean;
   effectiveModelHidden: (modelId: string) => boolean;
   getUpstreamHeadersRecordForModel: (modelId: string, protocol: string) => Record<string, string>;
 
@@ -184,6 +185,7 @@ export default function ProviderModelsSection({
   handleTestAll,
   effectiveModelNormalize,
   effectiveModelPreserveDeveloper,
+  effectiveModelPreserveVideoUrl,
   effectiveModelHidden,
   getUpstreamHeadersRecordForModel,
   t,
@@ -297,6 +299,7 @@ export default function ProviderModelsSection({
           t={t}
           effectiveModelNormalize={effectiveModelNormalize}
           effectiveModelPreserveDeveloper={effectiveModelPreserveDeveloper}
+          effectiveModelPreserveVideoUrl={effectiveModelPreserveVideoUrl}
           getUpstreamHeadersRecord={getUpstreamHeadersRecordForModel}
           saveModelCompatFlags={saveModelCompatFlags}
           compatSavingModelId={compatSavingModelId}
@@ -376,6 +379,7 @@ export default function ProviderModelsSection({
           t={t}
           effectiveModelNormalize={effectiveModelNormalize}
           effectiveModelPreserveDeveloper={effectiveModelPreserveDeveloper}
+          effectiveModelPreserveVideoUrl={effectiveModelPreserveVideoUrl}
           getUpstreamHeadersRecord={getUpstreamHeadersRecordForModel}
           saveModelCompatFlags={saveModelCompatFlags}
           compatSavingModelId={compatSavingModelId}
@@ -549,6 +553,7 @@ export default function ProviderModelsSection({
               showDeveloperToggle
               effectiveModelNormalize={effectiveModelNormalize}
               effectiveModelPreserveDeveloper={effectiveModelPreserveDeveloper}
+              effectiveModelPreserveVideoUrl={effectiveModelPreserveVideoUrl}
               getUpstreamHeadersRecord={(p) => getUpstreamHeadersRecordForModel(model.id, p)}
               saveModelCompatFlags={saveModelCompatFlags}
               compatDisabled={compatSavingModelId === model.id}

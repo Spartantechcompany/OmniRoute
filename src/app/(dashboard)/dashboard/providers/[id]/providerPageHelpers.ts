@@ -87,6 +87,8 @@ export type CompatModelRow = {
   endpointCapabilitySource?: string;
   normalizeToolCallId?: boolean;
   preserveOpenAIDeveloperRole?: boolean;
+  /** Model-level `video_url` passthrough (#9248); read by the translator without a protocol. */
+  preserveVideoUrl?: boolean;
   isHidden?: boolean;
   /** #12172: per-modality visibility overrides (`{ chat: true }`) — see `isHiddenForModality`. */
   hiddenModalities?: Record<string, boolean>;
@@ -610,6 +612,22 @@ export function effectiveNormalizeForProtocol(
   }
   if (c?.normalizeToolCallId) return true;
   return Boolean(o?.normalizeToolCallId);
+}
+
+/** Explicit `preserveVideoUrl` for a model (custom row first, then compat override); off by default. */
+export function effectivePreserveVideoUrl(
+  modelId: string,
+  customMap: CompatModelMap,
+  overrideMap: CompatModelMap
+): boolean {
+  const c = customMap.get(modelId);
+  if (c && Object.prototype.hasOwnProperty.call(c, "preserveVideoUrl")) {
+    return Boolean(c.preserveVideoUrl);
+  }
+  const o = overrideMap.get(modelId);
+  return Boolean(
+    o && Object.prototype.hasOwnProperty.call(o, "preserveVideoUrl") && o.preserveVideoUrl
+  );
 }
 
 export function effectivePreserveForProtocol(

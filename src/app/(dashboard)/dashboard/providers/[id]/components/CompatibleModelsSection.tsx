@@ -37,6 +37,7 @@ export type CompatibleModelsSaveFlags = {
   normalizeToolCallId?: boolean;
   preserveDeveloperRole?: boolean;
   preserveOpenAIDeveloperRole?: boolean;
+  preserveVideoUrl?: boolean | null;
   isHidden?: boolean;
 };
 
@@ -63,6 +64,7 @@ export interface CompatibleModelsSectionProps {
   t: (key: string, values?: Record<string, unknown>) => string;
   effectiveModelNormalize: (alias: string) => boolean;
   effectiveModelPreserveDeveloper: (alias: string) => boolean;
+  effectiveModelPreserveVideoUrl?: (modelId: string) => boolean;
   getUpstreamHeadersRecord: (modelId: string, protocol: string) => Record<string, string>;
   saveModelCompatFlags: (modelId: string, flags: CompatibleModelsSaveFlags) => Promise<void>;
   compatSavingModelId?: string;
@@ -132,6 +134,7 @@ export default function CompatibleModelsSection({
   t,
   effectiveModelNormalize,
   effectiveModelPreserveDeveloper,
+  effectiveModelPreserveVideoUrl,
   getUpstreamHeadersRecord,
   saveModelCompatFlags,
   compatSavingModelId,
@@ -605,6 +608,7 @@ export default function CompatibleModelsSection({
                     showDeveloperToggle={!isAnthropic}
                     effectiveModelNormalize={effectiveModelNormalize}
                     effectiveModelPreserveDeveloper={effectiveModelPreserveDeveloper}
+                    effectiveModelPreserveVideoUrl={effectiveModelPreserveVideoUrl}
                     getUpstreamHeadersRecord={(p) => getUpstreamHeadersRecord(modelId, p)}
                     saveModelCompatFlags={saveModelCompatFlags}
                     compatDisabled={compatSavingModelId === modelId}
