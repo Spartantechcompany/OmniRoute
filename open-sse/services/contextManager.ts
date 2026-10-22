@@ -82,6 +82,13 @@ const IMAGE_TOKEN_ESTIMATE = 1200;
 // rather than introducing a second constant with no grounding in this repo.
 const DOCUMENT_TOKEN_ESTIMATE = IMAGE_TOKEN_ESTIMATE;
 
+// Inline video/audio payloads are likewise bounded instead of measured as base64 text: a 451 KB
+// clip counted ~150k tokens against a 128k window while the upstream model counted ~550. The real
+// cost scales with frames/duration, so these are deliberately generous per-part ceilings rather
+// than a measurement (a request carrying several clips adds one budget per part).
+const VIDEO_TOKEN_ESTIMATE = 4000;
+const AUDIO_TOKEN_ESTIMATE = IMAGE_TOKEN_ESTIMATE;
+
 // Matches inline base64 data URLs, e.g. "data:image/png;base64,AAAA...".
 // Deliberately scoped to `data:image/...;base64,` so remote (http/https)
 // URLs and generic long base64 text strings stay on the text-estimation path.
@@ -161,6 +168,66 @@ function matchesClaudeDocumentShape(node: Record<string, unknown>): boolean {
  */
 export function isInlineBase64DocumentBlock(node: Record<string, unknown>): boolean {
   return matchesOpenAIFileShape(node) || matchesClaudeDocumentShape(node);
+}
+
+const INLINE_BASE64_VIDEO_RE = /^data:video\/[a-zA-Z0-9.+-]+;base64,/;
+const INLINE_BASE64_AUDIO_RE = /^data:audio\/[a-zA-Z0-9.+-]+;base64,/;
+
+function isInlineBase64MediaUrl(value: unknown, re: RegExp): boolean {
+  if (typeof value === "string") return re.test(value);
+  if (!value || typeof value !== "object") return false;
+  const url = (value as Record<string, unknown>).url;
+  return typeof url === "string" && re.test(url);
+}
+
+// Claude-style: { type: 'video'|'audio', source: { type: 'base64', media_type: 'video/mp4', data } }
+function matchesBase64SourceOfMediaType(node: Record<string, unknown>, prefix: string): boolean {
+  const source = node.source;
+  if (!source || typeof source !== "object") return false;
+  const src = source as Record<string, unknown>;
+  return (
+    src.type === "base64" &&
+    typeof src.data === "string" &&
+    typeof src.media_type === "string" &&
+    src.media_type.toLowerCase().startsWith(prefix)
+  );
+}
+
+/**
+ * Inline-base64 *video* blocks: `video_url` / `input_video` carrying a `data:video/...;base64,`
+ * URI (string or `{ url }`), and Claude-style base64 video sources. Remote http(s) URLs are not
+ * matched: they are short strings and stay on the text path. Estimation only.
+ */
+export function isInlineBase64VideoBlock(node: Record<string, unknown>): boolean {
+  if (node.type === "video_url") {
+    return isInlineBase64MediaUrl(node.video_url, INLINE_BASE64_VIDEO_RE);
+  }
+  if (node.type === "input_video") {
+    return isInlineBase64MediaUrl(
+      node.video_url ?? node.input_video ?? node.url,
+      INLINE_BASE64_VIDEO_RE
+    );
+  }
+  return node.type === "video" && matchesBase64SourceOfMediaType(node, "video/");
+}
+
+/**
+ * Inline-base64 *audio* blocks: OpenAI `input_audio` (raw base64 in `input_audio.data`),
+ * `audio_url` with a `data:audio/...;base64,` URI, and Claude-style base64 audio sources.
+ */
+export function isInlineBase64AudioBlock(node: Record<string, unknown>): boolean {
+  if (node.type === "input_audio") {
+    const audio = node.input_audio;
+    return (
+      !!audio &&
+      typeof audio === "object" &&
+      typeof (audio as Record<string, unknown>).data === "string"
+    );
+  }
+  if (node.type === "audio_url") {
+    return isInlineBase64MediaUrl(node.audio_url, INLINE_BASE64_AUDIO_RE);
+  }
+  return node.type === "audio" && matchesBase64SourceOfMediaType(node, "audio/");
 }
 
 /**
@@ -309,6 +376,12 @@ const IMAGE_PLACEHOLDER_CHARS = JSON.stringify({
 const DOCUMENT_PLACEHOLDER_CHARS = JSON.stringify({
   __document_token_estimate__: DOCUMENT_TOKEN_ESTIMATE,
 }).length;
+const VIDEO_PLACEHOLDER_CHARS = JSON.stringify({
+  __video_token_estimate__: VIDEO_TOKEN_ESTIMATE,
+}).length;
+const AUDIO_PLACEHOLDER_CHARS = JSON.stringify({
+  __audio_token_estimate__: AUDIO_TOKEN_ESTIMATE,
+}).length;
 
 function isOmittedValue(value: unknown): boolean {
   return value === undefined || typeof value === "function" || typeof value === "symbol";
@@ -363,6 +436,16 @@ function measureVirtual(node: unknown, seen: Set<object>, flags?: MeasureFlags):
           mediaTokens += DOCUMENT_TOKEN_ESTIMATE;
           continue;
         }
+        if (isInlineBase64VideoBlock(record)) {
+          chars += VIDEO_PLACEHOLDER_CHARS;
+          mediaTokens += VIDEO_TOKEN_ESTIMATE;
+          continue;
+        }
+        if (isInlineBase64AudioBlock(record)) {
+          chars += AUDIO_PLACEHOLDER_CHARS;
+          mediaTokens += AUDIO_TOKEN_ESTIMATE;
+          continue;
+        }
       }
       if (isOmittedValue(item)) {
         chars += 4; // omitted values render as null inside arrays
@@ -381,6 +464,12 @@ function measureVirtual(node: unknown, seen: Set<object>, flags?: MeasureFlags):
   }
   if (isInlineBase64DocumentBlock(record)) {
     return { chars: DOCUMENT_PLACEHOLDER_CHARS, mediaTokens: DOCUMENT_TOKEN_ESTIMATE };
+  }
+  if (isInlineBase64VideoBlock(record)) {
+    return { chars: VIDEO_PLACEHOLDER_CHARS, mediaTokens: VIDEO_TOKEN_ESTIMATE };
+  }
+  if (isInlineBase64AudioBlock(record)) {
+    return { chars: AUDIO_PLACEHOLDER_CHARS, mediaTokens: AUDIO_TOKEN_ESTIMATE };
   }
 
   let chars = 2;
