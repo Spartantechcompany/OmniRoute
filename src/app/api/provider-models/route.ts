@@ -248,6 +248,7 @@ export async function PUT(request) {
       targetFormat,
       normalizeToolCallId,
       preserveOpenAIDeveloperRole,
+      preserveVideoUrl,
       upstreamHeaders,
       compatByProtocol,
       contextWindowOverride,
@@ -266,6 +267,7 @@ export async function PUT(request) {
     if ("normalizeToolCallId" in raw) updates.normalizeToolCallId = normalizeToolCallId;
     if ("preserveOpenAIDeveloperRole" in raw)
       updates.preserveOpenAIDeveloperRole = preserveOpenAIDeveloperRole;
+    if ("preserveVideoUrl" in raw) updates.preserveVideoUrl = preserveVideoUrl;
     if ("upstreamHeaders" in raw) updates.upstreamHeaders = upstreamHeaders;
     if ("supportsVision" in raw) updates.supportsVision = supportsVision;
     if ("isFree" in raw) updates.isFree = isFree;
@@ -310,6 +312,7 @@ export async function PUT(request) {
             "source",
             "normalizeToolCallId",
             "preserveOpenAIDeveloperRole",
+            "preserveVideoUrl",
             "upstreamHeaders",
             "compatByProtocol",
             "contextWindowOverride",
@@ -321,6 +324,7 @@ export async function PUT(request) {
         ) &&
         ("normalizeToolCallId" in raw ||
           "preserveOpenAIDeveloperRole" in raw ||
+          "preserveVideoUrl" in raw ||
           "upstreamHeaders" in raw ||
           "compatByProtocol" in raw ||
           "contextWindowOverride" in raw ||
@@ -351,6 +355,12 @@ export async function PUT(request) {
           patch.preserveOpenAIDeveloperRole =
             preserveOpenAIDeveloperRole === null || typeof preserveOpenAIDeveloperRole === "boolean"
               ? preserveOpenAIDeveloperRole
+              : undefined;
+        }
+        if ("preserveVideoUrl" in raw) {
+          patch.preserveVideoUrl =
+            preserveVideoUrl === null || typeof preserveVideoUrl === "boolean"
+              ? preserveVideoUrl
               : undefined;
         }
         if ("compatByProtocol" in raw && compatByProtocol && typeof compatByProtocol === "object") {

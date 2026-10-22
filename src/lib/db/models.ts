@@ -313,6 +313,9 @@ export async function replaceCustomModels(
       ...(prev && (prev as any).preserveOpenAIDeveloperRole !== undefined
         ? { preserveOpenAIDeveloperRole: (prev as any).preserveOpenAIDeveloperRole }
         : {}),
+      ...(prev && (prev as any).preserveVideoUrl !== undefined
+        ? { preserveVideoUrl: (prev as any).preserveVideoUrl }
+        : {}),
       ...(prev && (prev as any).compatByProtocol
         ? { compatByProtocol: (prev as any).compatByProtocol }
         : {}),
@@ -840,6 +843,7 @@ export async function updateCustomModel(
     ...(updates.isHidden !== undefined ? { isHidden: Boolean(updates.isHidden) } : {}),
   };
   applyTriStateBooleanOverride(next, updates, "preserveOpenAIDeveloperRole");
+  applyTriStateBooleanOverride(next, updates, "preserveVideoUrl");
   // #1904: manual vision-capability override — `null` clears back to the
   // id-based heuristic in getCustomVisionCapabilityFields().
   applyTriStateBooleanOverride(next, updates, "supportsVision");
@@ -932,7 +936,7 @@ export async function resetModelEndpointOverride(
 }
 
 /** Single custom model row from key_value customModels, or null */
-function getCustomModelRow(providerId: string, modelId: string): JsonRecord | null {
+export function getCustomModelRow(providerId: string, modelId: string): JsonRecord | null {
   const db = getDbInstance();
   const row = db
     .prepare("SELECT value FROM key_value WHERE namespace = 'customModels' AND key = ?")
