@@ -27,6 +27,7 @@ import ModelEndpointTagsEditor, { type ModelEndpointEditorInfo } from "./ModelEn
 export type ModelCompatSavePatch = {
   normalizeToolCallId?: boolean;
   preserveOpenAIDeveloperRole?: boolean;
+  preserveVideoUrl?: boolean | null;
   upstreamHeaders?: Record<string, string>;
   compatByProtocol?: Record<
     string,
@@ -273,6 +274,7 @@ export interface ModelRowProps {
   showDeveloperToggle?: boolean;
   effectiveModelNormalize: (modelId: string, protocol?: string) => boolean;
   effectiveModelPreserveDeveloper: (modelId: string, protocol?: string) => boolean;
+  effectiveModelPreserveVideoUrl?: (modelId: string) => boolean;
   saveModelCompatFlags: (modelId: string, patch: ModelCompatSavePatch) => void;
   getUpstreamHeadersRecord: (protocol: string) => Record<string, string>;
   compatDisabled?: boolean;
@@ -297,6 +299,7 @@ export default function ModelRow({
   showDeveloperToggle = true,
   effectiveModelNormalize,
   effectiveModelPreserveDeveloper,
+  effectiveModelPreserveVideoUrl,
   getUpstreamHeadersRecord,
   saveModelCompatFlags,
   compatDisabled,
@@ -482,6 +485,16 @@ export default function ModelRow({
               saveModelCompatFlags(model.id, { compatByProtocol: { [protocol]: payload } })
             }
             showDeveloperToggle={showDeveloperToggle}
+            effectiveModelPreserveVideoUrl={
+              effectiveModelPreserveVideoUrl
+                ? () => effectiveModelPreserveVideoUrl(model.id)
+                : undefined
+            }
+            onPreserveVideoUrlChange={
+              effectiveModelPreserveVideoUrl
+                ? (value) => saveModelCompatFlags(model.id, { preserveVideoUrl: value })
+                : undefined
+            }
             disabled={compatDisabled}
           />
         </div>

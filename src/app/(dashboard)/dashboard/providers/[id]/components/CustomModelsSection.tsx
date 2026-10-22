@@ -23,6 +23,7 @@ import {
   anyUpstreamHeadersBadge,
   effectiveNormalizeForProtocol,
   effectivePreserveForProtocol,
+  effectivePreserveVideoUrl,
   effectiveUpstreamHeadersForProtocol,
   endpointsForApiFormatChange,
   formatProviderModelsErrorResponse,
@@ -309,7 +310,7 @@ export default function CustomModelsSection({
 
   const saveCustomCompat = async (
     modelId: string,
-    patch: { compatByProtocol?: CompatByProtocolMap }
+    patch: { compatByProtocol?: CompatByProtocolMap; preserveVideoUrl?: boolean | null }
   ) => {
     setSavingModelId(modelId);
     try {
@@ -873,6 +874,12 @@ export default function CustomModelsSection({
                       })
                     }
                     showDeveloperToggle
+                    effectiveModelPreserveVideoUrl={() =>
+                      effectivePreserveVideoUrl(model.id!, customMap, overrideMap)
+                    }
+                    onPreserveVideoUrlChange={(value) =>
+                      saveCustomCompat(model.id!, { preserveVideoUrl: value })
+                    }
                     disabled={savingModelId === model.id}
                   />
                   <button

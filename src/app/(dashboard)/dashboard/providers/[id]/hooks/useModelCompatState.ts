@@ -21,6 +21,7 @@ import {
   effectiveUpstreamHeadersForProtocol,
   type CompatModelRow,
   type CompatModelMap,
+  effectivePreserveVideoUrl,
 } from "../providerPageHelpers";
 
 export interface ModelCompatState {
@@ -34,6 +35,8 @@ export interface ModelCompatState {
   effectiveModelNormalize: (modelId: string, protocol?: string) => boolean;
   /** Stable callback: effective preserve-developer flag for (modelId, protocol). */
   effectiveModelPreserveDeveloper: (modelId: string, protocol?: string) => boolean;
+  /** Stable callback: explicit model-level preserveVideoUrl flag for modelId. */
+  effectiveModelPreserveVideoUrl: (modelId: string) => boolean;
   /** Stable callback: upstream-headers record for (modelId, protocol). */
   getUpstreamHeadersRecord: (modelId: string, protocol: string) => Record<string, string>;
   /** Stable callback: should the normalize compat badge be shown? */
@@ -72,6 +75,11 @@ export function useModelCompatState(
     [customMap, overrideMap]
   );
 
+  const effectiveModelPreserveVideoUrl = useCallback(
+    (modelId: string) => effectivePreserveVideoUrl(modelId, customMap, overrideMap),
+    [customMap, overrideMap]
+  );
+
   const getUpstreamHeadersRecord = useCallback(
     (modelId: string, protocol: string) =>
       effectiveUpstreamHeadersForProtocol(modelId, protocol, customMap, overrideMap),
@@ -94,6 +102,7 @@ export function useModelCompatState(
     isModelHidden,
     effectiveModelNormalize,
     effectiveModelPreserveDeveloper,
+    effectiveModelPreserveVideoUrl,
     getUpstreamHeadersRecord,
     anyNormalizeCompatBadge: anyNormalizeCompatBadgeFn,
     anyNoPreserveCompatBadge: anyNoPreserveCompatBadgeFn,

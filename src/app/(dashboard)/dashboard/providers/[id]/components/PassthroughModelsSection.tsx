@@ -45,6 +45,7 @@ export type ModelCompatSavePatchPassthrough = {
   normalizeToolCallId?: boolean;
   preserveDeveloperRole?: boolean;
   preserveOpenAIDeveloperRole?: boolean;
+  preserveVideoUrl?: boolean | null;
 };
 
 export interface PassthroughModelsSectionProps {
@@ -65,6 +66,7 @@ export interface PassthroughModelsSectionProps {
   t: (key: string, values?: Record<string, unknown>) => string;
   effectiveModelNormalize: (alias: string) => boolean;
   effectiveModelPreserveDeveloper: (alias: string) => boolean;
+  effectiveModelPreserveVideoUrl?: (modelId: string) => boolean;
   getUpstreamHeadersRecord: (modelId: string, protocol: string) => Record<string, string>;
   saveModelCompatFlags: (modelId: string, flags: ModelCompatSavePatchPassthrough) => Promise<void>;
   compatSavingModelId?: string;
@@ -113,6 +115,7 @@ export default function PassthroughModelsSection({
   t,
   effectiveModelNormalize,
   effectiveModelPreserveDeveloper,
+  effectiveModelPreserveVideoUrl,
   getUpstreamHeadersRecord,
   saveModelCompatFlags,
   compatSavingModelId,
@@ -488,6 +491,7 @@ export default function PassthroughModelsSection({
                 showDeveloperToggle
                 effectiveModelNormalize={effectiveModelNormalize}
                 effectiveModelPreserveDeveloper={effectiveModelPreserveDeveloper}
+                effectiveModelPreserveVideoUrl={effectiveModelPreserveVideoUrl}
                 getUpstreamHeadersRecord={(p) => getUpstreamHeadersRecord(modelId, p)}
                 saveModelCompatFlags={saveModelCompatFlags}
                 compatDisabled={compatSavingModelId === modelId}
